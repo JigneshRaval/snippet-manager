@@ -33,4 +33,10 @@ router.post('/addSnippet', function(req, res){
 	});
 });
 
+router.delete('/deleteSnippet/:id', function(req, res){
+	SnippetsModel.deleteSnippet(req.params.id, function(snippet){
+		res.send("Record deleted "+req.params.id);
+	});
+});
+
 module.exports = router;

@@ -3,6 +3,7 @@ db = {};
 
 db.snippets = new Datastore({ filename: './data/snippets.json' });
 
+
 // Load Snippets database
 db.snippets.loadDatabase(function (err) {    // Callback is optional
 	if(err) {
@@ -10,6 +11,13 @@ db.snippets.loadDatabase(function (err) {    // Callback is optional
 	} else {
 		console.log("Snippets database loaded successfuly.");
 	}
+});
+
+db.snippets.ensureIndex({ fieldName: 'name' }, function (err) {
+  // If there was an error, err is not null
+  if(err) {
+	  console.log("Database indexing error :", err);
+  }
 });
 
 const SnippetsModel = (function(){
@@ -38,10 +46,17 @@ const SnippetsModel = (function(){
 		});
 	};
 
+	function deleteSnippet(id, callback) {
+		db.snippets.remove({ _id: id }, {}, function (err, numRemoved) {
+  			callback(numRemoved);
+		});
+	};
+
 	return {
 		getAll : getAll,
 		addSnippet : addSnippet,
-		getSingleSnippet: getSingleSnippet
+		getSingleSnippet: getSingleSnippet,
+		deleteSnippet: deleteSnippet
 	}
 })();
 

@@ -5,13 +5,14 @@
 	<meta charset="UTF-8" />
 	<title>Home</title>
 	<link rel="stylesheet" href="app/assets/build/styles/styles.css" />
+	<link rel="stylesheet" href="app/assets/css/main.css" />
 </head>
 
 <body>
 	<div id="app">Hi Node</div>
 	<div className="c-user-form">
 		<h3>Add New User</h3>
-		<form>
+		<form method="post" enctype="multipart/form-data">
 			<div className="form-group">
 				<label for="exampleInputEmail1">User Name</label>
 				<input type="userName" name="userName" className="form-control" id="exampleInputEmail1" placeholder="User Name" required/>
@@ -20,7 +21,9 @@
 				<label for="exampleInputPassword1">Password</label>
 				<input type="text" name="email" className="form-control" id="exampleInputPassword1" placeholder="Password" required/>
 			</div>
+			<input type="file" id="file">
 			<button type="submit" className="btn btn-default" id="submit">Submit</button>
+
 		</form>
 	</div>
 	<div id="sample-data">
@@ -28,20 +31,27 @@
 	</div>
 
 	<script id="entry-template" type="text/x-handlebars-template">
-		<div class="entry">
+		<ul class="c-user-list">
 			{{#each snippets}}
-			<h1>{{name}}</h1>
-			<div class="body">
-				{{email}}
-			</div>
+				<li>
+					<h3>User Name : {{name}}</h3>
+					<div class="body">
+					<strong>Email : </strong>{{email}}
+					<a href="javascript:;" class="view-detail" data-user-id="{{_id}}">View Detail</a>
+					<a href="javascript:;" class="delete-user" data-user-id="{{_id}}">Delete</a>
+					</div>
+				</li>
 			{{/each}}
-		</div>
+		</ul>
 	</script>
-	<!--<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet" />-->
+
 	<script src="app/assets/build/scripts/script.js"></script>
+
 	<script>
 		// magic.js
 		$(document).ready(function() {
+
+			// Get all the snippets from database on page load
 			fetch('/snippets/all') // Call the fetch function passing the url of the API as a parameter
 				.then(function(resp) {
 					return resp.json()
@@ -57,7 +67,7 @@
 				.catch(function() {
 					// This is where you run code if the server returns any errors
 				});
-			// process the form
+			// process the form to save data into database
 			$('form').submit(function(event) {
 				// stop the form from submitting the normal way and refreshing the page
 				event.preventDefault();
@@ -90,6 +100,21 @@
 					// here we will handle errors and validation messages
 				});
 			});
+			$('#sample-data').on('click', '.delete-user', function(){
+				var id= $(this).data('user-id');
+				deleteUser(id);
+			});
+			function deleteUser(id) {
+				// url (required), options (optional)
+				fetch('/snippets/deleteSnippet/'+id, {
+					method: 'DELETE'
+				}).then(function(response) {
+					console.log("User Deleted with ID :", id, response);
+				}).catch(function(err) {
+					// Error :(
+					console.log("Error :", err);
+				});
+			}
 		});
 	</script>
 </body>
