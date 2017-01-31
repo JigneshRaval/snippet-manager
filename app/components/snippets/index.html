@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Home</title>
+	<link rel="stylesheet" href="app/assets/build/styles/styles.css" />
+</head>
+
+<body>
+	<div id="app">Hi Node</div>
+	<div className="c-user-form">
+		<h3>Add New User</h3>
+		<form>
+			<div className="form-group">
+				<label for="exampleInputEmail1">User Name</label>
+				<input type="userName" name="userName" className="form-control" id="exampleInputEmail1" placeholder="User Name" required/>
+			</div>
+			<div className="form-group">
+				<label for="exampleInputPassword1">Password</label>
+				<input type="text" name="email" className="form-control" id="exampleInputPassword1" placeholder="Password" required/>
+			</div>
+			<button type="submit" className="btn btn-default" id="submit">Submit</button>
+		</form>
+	</div>
+	<div id="sample-data">
+
+	</div>
+
+	<script id="entry-template" type="text/x-handlebars-template">
+		<div class="entry">
+			{{#each snippets}}
+			<h1>{{name}}</h1>
+			<div class="body">
+				{{email}}
+			</div>
+			{{/each}}
+		</div>
+	</script>
+	<!--<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet" />-->
+	<script src="app/assets/build/scripts/script.js"></script>
+	<script>
+		// magic.js
+		$(document).ready(function() {
+			fetch('/snippets/all') // Call the fetch function passing the url of the API as a parameter
+				.then(function(resp) {
+					return resp.json()
+				}) // Transform the data into json
+				.then(function(data) {
+					// Your code for handling the data you get from the API
+					console.log("Fetch Data :", data);
+					var source = $("#entry-template").html();
+					var template = Handlebars.compile(source);
+					var html = template(data);
+					$('#sample-data').append(html);
+				})
+				.catch(function() {
+					// This is where you run code if the server returns any errors
+				});
+			// process the form
+			$('form').submit(function(event) {
+				// stop the form from submitting the normal way and refreshing the page
+				event.preventDefault();
+
+				// get the form data
+				// there are many ways to get this data using jQuery (you can use the class or id also)
+				var formData = {
+					'name': $('input[name=userName]').val(),
+					'email': $('input[name=email]').val(),
+					'dateCreated': new Date().getTime()
+				};
+
+				// process the form
+				$.ajax({
+						type: 'POST', // define the type of HTTP verb we want to use (POST for our form)
+						url: '/snippets/addSnippet', // the url where we want to POST
+						data: formData, // our data object
+						dataType: 'json', // what type of data do we expect back from the server
+						encode: true
+				})
+				// using the done promise callback
+				.done(function(data) {
+
+					// log data to the console so we can see
+					console.log(data);
+					var source = $("#entry-template").html();
+					var template = Handlebars.compile(source);
+					var html = template(data.snippet);
+					$('#sample-data').append(html);
+					// here we will handle errors and validation messages
+				});
+			});
+		});
+	</script>
+</body>
+
+</html>
